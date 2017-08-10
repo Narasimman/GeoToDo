@@ -1,6 +1,7 @@
 package com.narasimman.android.todo;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
@@ -52,6 +53,32 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
+
+        lvItems.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapter, View view, int pos, long id) {
+                        launchComposeView(pos, items.get(pos));
+                    }
+                }
+        );
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            String task = data.getStringExtra("task");
+            int id = data.getIntExtra("id", 0);
+            items.set(id, task);
+            itemsAdaptor.notifyDataSetChanged();
+        }
+    }
+
+    public void launchComposeView(final int id, final String task) {
+        Intent intent = new Intent(MainActivity.this, EditItemActivity.class);
+        intent.putExtra("id", id);
+        intent.putExtra("task", task);
+        startActivityForResult(intent, 200);
     }
 
     private void saveToDB(final String task) {
