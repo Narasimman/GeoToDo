@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -17,8 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    List<String> items;
-    ArrayAdapter<String> itemsAdaptor;
+    List<Task> items;
+    ArrayAdapter<Task> itemsAdaptor;
     ListView lvItems;
 
     @Override
@@ -27,10 +28,40 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         items = new ArrayList<>();
         readFromDB();
+        itemsAdaptor = new TasksAdapter(this, items);
         lvItems = (ListView) findViewById(R.id.lvItems);
-        itemsAdaptor = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
         lvItems.setAdapter(itemsAdaptor);
-        setupListViewListener();
+
+        Button button = (Button) findViewById(R.id.btnAddItem);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                onAddItem(v);
+            }
+        });
+    }
+
+    public void launchComposeView(final Task task) {
+        Intent intent = new Intent(this, EditItemActivity.class);
+        intent.putExtra("id", task.getId());
+        intent.putExtra("task", task.getTask());
+        startActivityForResult(intent, 200);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            String taskStr = data.getStringExtra("task");
+            int id = data.getIntExtra("id", 0);
+            Task task = null;
+            for (Task t : items) {
+                if (t.getId() == id) {
+                    task = t;
+                }
+            }
+            task.setTask(taskStr);
+            updateItemOnDB(task);
+            itemsAdaptor.notifyDataSetChanged();
+        }
     }
 
     public void onAddItem(View view) {
@@ -39,60 +70,31 @@ public class MainActivity extends AppCompatActivity {
         if (item.length() < 1) {
             return;
         }
-        itemsAdaptor.add(item);
+        Task task = new Task(item);
+        items.add(task);
         etNewItem.setText("");
-        saveToDB(items.size() - 1, item);
+        long id = saveToDB(task);
+        task.setId(id);
+        itemsAdaptor.notifyDataSetChanged();
     }
 
-    private void setupListViewListener() {
-        lvItems.setOnItemLongClickListener(
-                new AdapterView.OnItemLongClickListener() {
-                    @Override
-                    public boolean onItemLongClick(AdapterView<?> adapter, View item, int pos, long id) {
-                        items.remove(pos);
-                        itemsAdaptor.notifyDataSetChanged();
-                        deleteItemOnDB(pos);
-                        return true;
-                    }
-                }
-        );
-
-        lvItems.setOnItemClickListener(
-                new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapter, View view, int pos, long id) {
-                        launchComposeView(pos, items.get(pos));
-                    }
-                }
-        );
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
-            String task = data.getStringExtra("task");
-            int id = data.getIntExtra("id", 0);
-            items.set(id, task);
-            updateItemOnDB(id, task);
-            itemsAdaptor.notifyDataSetChanged();
-        }
-    }
-
-    public void launchComposeView(final int id, final String task) {
-        Intent intent = new Intent(MainActivity.this, EditItemActivity.class);
-        intent.putExtra("id", id);
-        intent.putExtra("task", task);
-        startActivityForResult(intent, 200);
-    }
-
-    private void saveToDB(final int pos, final String task) {
+    private long saveToDB(final Task task) {
         SQLiteDatabase database = new SQLiteDBHelper(this).getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(SQLiteDBHelper.COLUMN_TASK, task);
-        values.put(SQLiteDBHelper.COLUMN_POS, pos);
+        values.put(SQLiteDBHelper.COLUMN_TASK, task.getTask());
         long newRowId = database.insert(SQLiteDBHelper.TABLE_NAME, null, values);
-
         Toast.makeText(this, "The new Row Id is " + newRowId, Toast.LENGTH_LONG).show();
+        return newRowId;
+    }
+
+
+    private void updateItemOnDB(final Task task) {
+        SQLiteDatabase database = new SQLiteDBHelper(this).getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(SQLiteDBHelper.COLUMN_TASK, task.getTask());
+        database.update(SQLiteDBHelper.TABLE_NAME, values, SQLiteDBHelper.COLUMN_ID + "=" + task.getId(), null);
+
+        Toast.makeText(this, "Item Updated.", Toast.LENGTH_LONG).show();
     }
 
     private void readFromDB() {
@@ -100,39 +102,29 @@ public class MainActivity extends AppCompatActivity {
 
         final String[] projection = {
                 SQLiteDBHelper.COLUMN_ID,
-                SQLiteDBHelper.COLUMN_POS,
                 SQLiteDBHelper.COLUMN_TASK
         };
 
         try (Cursor cursor = database.query(
-                    SQLiteDBHelper.TABLE_NAME,   // The table to query
-                    projection,                               // The columns to return
-                    null,                                // The columns for the WHERE clause
-                    null,                            // The values for the WHERE clause
-                    null,                                     // don't group the rows
-                    null,                                     // don't filter by row groups
-                    null                                      // don't sort
-            )) {
+                SQLiteDBHelper.TABLE_NAME,   // The table to query
+                projection,                  // The columns to return
+                null,                        // The columns for the WHERE clause
+                null,                        // The values for the WHERE clause
+                null,                        // don't group the rows
+                null,                        // don't filter by row groups
+                null                         // don't sort
+        )) {
 
             while (cursor.moveToNext()) {
-                items.set(cursor.getInt(cursor.getColumnIndex(SQLiteDBHelper.COLUMN_POS)), cursor.getString(cursor.getColumnIndex(SQLiteDBHelper.COLUMN_TASK)));
+                Task task = new Task(cursor.getString(cursor.getColumnIndex(SQLiteDBHelper.COLUMN_TASK)));
+                items.add(task);
             }
         }
     }
 
-    private void updateItemOnDB(final int pos, final String task) {
+    public void deleteItemOnDB(final Task task) {
         SQLiteDatabase database = new SQLiteDBHelper(this).getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(SQLiteDBHelper.COLUMN_TASK, task);
-        database.update(SQLiteDBHelper.TABLE_NAME, values, SQLiteDBHelper.COLUMN_POS + "=" + pos, null);
-
-        Toast.makeText(this, "Item Updated.", Toast.LENGTH_LONG).show();
-    }
-
-    private void deleteItemOnDB(final int pos) {
-        SQLiteDatabase database = new SQLiteDBHelper(this).getWritableDatabase();
-        database.delete(SQLiteDBHelper.TABLE_NAME, SQLiteDBHelper.COLUMN_POS + "=" + pos, null);
-
+        database.delete(SQLiteDBHelper.TABLE_NAME, SQLiteDBHelper.COLUMN_ID + "=" + task.getId(), null);
         Toast.makeText(this, "Item deleted.", Toast.LENGTH_LONG).show();
     }
 }
