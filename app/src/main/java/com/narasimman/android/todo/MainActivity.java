@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -51,11 +50,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             String taskStr = data.getStringExtra("task");
-            int id = data.getIntExtra("id", 0);
+            long id = data.getLongExtra("id", -1);
             Task task = null;
             for (Task t : items) {
                 if (t.getId() == id) {
                     task = t;
+                    break;
                 }
             }
             task.setTask(taskStr);
@@ -71,10 +71,10 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         Task task = new Task(item);
-        items.add(task);
         etNewItem.setText("");
         long id = saveToDB(task);
         task.setId(id);
+        items.add(task);
         itemsAdaptor.notifyDataSetChanged();
     }
 

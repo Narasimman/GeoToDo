@@ -8,13 +8,14 @@ import android.widget.Button;
 import android.widget.EditText;
 
 public class EditItemActivity extends AppCompatActivity {
-    private int id;
+    private long id;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_item);
-        id = getIntent().getIntExtra("id", 0);
         String task = getIntent().getStringExtra("task");
+        long taskId = getIntent().getLongExtra("id", -1);
+        id = taskId;
         EditText editItem = (EditText) findViewById(R.id.editText);
         editItem.setText(task);
     }
