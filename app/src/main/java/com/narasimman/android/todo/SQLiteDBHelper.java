@@ -14,6 +14,8 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
     public static final String TABLE_NAME = "todo";
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_TASK = "task";
+    public static final String COLUMN_PRIORITY = "priority";
+    public static final String COLUMN_DUE = "due";
 
     public SQLiteDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -23,7 +25,9 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL("CREATE TABLE " + TABLE_NAME + " (" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COLUMN_TASK + " TEXT)");
+                COLUMN_TASK + " TEXT, " +
+                COLUMN_PRIORITY + " INTEGER," +
+                COLUMN_DUE + " TEXT)");
     }
 
     @Override

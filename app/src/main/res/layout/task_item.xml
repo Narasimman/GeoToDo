@@ -1,15 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/task_item"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:id="@+id/task_text"
+        android:layout_width="0dp"
+        android:layout_height="44dp"
+        android:layout_marginEnd="7dp"
         android:gravity="center_vertical"
         android:padding="5dp"
-        android:text="Large Text"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:text="Task Item"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@android:color/holo_blue_dark"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/task_priority"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintTop_creator="1" />
 
-</LinearLayout>
+    <TextView
+        android:id="@+id/task_priority"
+        android:layout_width="97dp"
+        android:layout_height="28dp"
+        android:layout_marginEnd="3dp"
+        android:gravity="right|end"
+        android:text="Priority"
+        android:textAlignment="textEnd"
+        android:textColorLink="@android:color/holo_green_dark"
+        app:layout_constraintBaseline_toBaselineOf="@+id/task_text"
+        app:layout_constraintRight_toRightOf="parent"
+        tools:layout_constraintBaseline_creator="1"
+        tools:layout_constraintRight_creator="1" />
+
+    <TextView
+        android:id="@+id/dueLabel"
+        android:layout_width="73dp"
+        android:layout_height="27dp"
+        android:text="Due by:"
+        tools:layout_constraintTop_creator="1"
+        android:layout_marginStart="93dp"
+        android:layout_marginTop="19dp"
+        app:layout_constraintTop_toBottomOf="@+id/task_text"
+        tools:layout_constraintLeft_creator="1"
+        app:layout_constraintLeft_toLeftOf="@+id/task_text" />
+
+    <TextView
+        android:id="@+id/due_date"
+        android:layout_width="0dp"
+        android:layout_height="31dp"
+        android:layout_marginEnd="38dp"
+        android:layout_marginStart="21dp"
+        android:editable="false"
+        android:text="Due Date"
+        app:layout_constraintBaseline_toBaselineOf="@+id/dueLabel"
+        app:layout_constraintLeft_toRightOf="@+id/dueLabel"
+        app:layout_constraintRight_toRightOf="@+id/task_priority"
+        tools:layout_constraintBaseline_creator="1"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintRight_creator="1" />
+
+</android.support.constraint.ConstraintLayout>

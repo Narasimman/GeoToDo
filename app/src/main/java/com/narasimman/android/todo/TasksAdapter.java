@@ -15,8 +15,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -40,9 +42,16 @@ public class TasksAdapter extends ArrayAdapter<Task> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.task_item, parent, false);
         }
         // Lookup view for data population
-        TextView taskItem = (TextView) convertView.findViewById(R.id.task_item);
+        TextView taskItem = (TextView) convertView.findViewById(R.id.task_text);
+        TextView taskPriority = (TextView) convertView.findViewById(R.id.task_priority);
+        TextView taskDue = (TextView) convertView.findViewById(R.id.due_date);
         // Populate the data into the template view using the data object
         taskItem.setText(task.getTask());
+        taskPriority.setText(task.getPriority().name());
+
+        String myFormat = "MM/dd/yy"; //In which you need put here
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+        taskDue.setText(sdf.format(task.getDue()));
 
         taskItem.setOnLongClickListener(
                 new View.OnLongClickListener() {

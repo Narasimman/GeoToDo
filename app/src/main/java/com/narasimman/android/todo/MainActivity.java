@@ -13,7 +13,12 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -41,25 +46,25 @@ public class MainActivity extends AppCompatActivity {
 
     public void launchComposeView(final Task task) {
         Intent intent = new Intent(this, EditItemActivity.class);
-        intent.putExtra("id", task.getId());
-        intent.putExtra("task", task.getTask());
+        intent.putExtra("task", task);
         startActivityForResult(intent, 200);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
-            String taskStr = data.getStringExtra("task");
-            long id = data.getLongExtra("id", -1);
-            Task task = null;
+            Task task = (Task) data.getSerializableExtra("task");
+            Task updatedTask = null;
             for (Task t : items) {
-                if (t.getId() == id) {
-                    task = t;
+                if (t.getId() == task.getId()) {
+                    updatedTask = t;
                     break;
                 }
             }
-            task.setTask(taskStr);
-            updateItemOnDB(task);
+            updatedTask.setTask(task.getTask());
+            updatedTask.setPriority(task.getPriority());
+            updatedTask.setDue(task.getDue());
+            updateItemOnDB(updatedTask);
             itemsAdaptor.notifyDataSetChanged();
         }
     }
@@ -71,10 +76,14 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         Task task = new Task(item);
-        etNewItem.setText("");
+        task.setPriority(Task.Priority.HIGH);
+
+        Date today = Calendar.getInstance().getTime();
+        task.setDue(today);
         long id = saveToDB(task);
         task.setId(id);
         items.add(task);
+        etNewItem.setText("");
         itemsAdaptor.notifyDataSetChanged();
     }
 
@@ -82,6 +91,8 @@ public class MainActivity extends AppCompatActivity {
         SQLiteDatabase database = new SQLiteDBHelper(this).getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(SQLiteDBHelper.COLUMN_TASK, task.getTask());
+        values.put(SQLiteDBHelper.COLUMN_PRIORITY, task.getPriority().name());
+        values.put(SQLiteDBHelper.COLUMN_DUE, new SimpleDateFormat("MM/dd/yy").format(task.getDue()));
         long newRowId = database.insert(SQLiteDBHelper.TABLE_NAME, null, values);
         Toast.makeText(this, "The new Row Id is " + newRowId, Toast.LENGTH_LONG).show();
         return newRowId;
@@ -92,6 +103,8 @@ public class MainActivity extends AppCompatActivity {
         SQLiteDatabase database = new SQLiteDBHelper(this).getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(SQLiteDBHelper.COLUMN_TASK, task.getTask());
+        values.put(SQLiteDBHelper.COLUMN_PRIORITY, task.getPriority().name());
+        values.put(SQLiteDBHelper.COLUMN_DUE, new SimpleDateFormat("MM/dd/yy").format(task.getDue()));
         database.update(SQLiteDBHelper.TABLE_NAME, values, SQLiteDBHelper.COLUMN_ID + "=" + task.getId(), null);
 
         Toast.makeText(this, "Item Updated.", Toast.LENGTH_LONG).show();
@@ -102,7 +115,9 @@ public class MainActivity extends AppCompatActivity {
 
         final String[] projection = {
                 SQLiteDBHelper.COLUMN_ID,
-                SQLiteDBHelper.COLUMN_TASK
+                SQLiteDBHelper.COLUMN_TASK,
+                SQLiteDBHelper.COLUMN_PRIORITY,
+                SQLiteDBHelper.COLUMN_DUE
         };
 
         try (Cursor cursor = database.query(
@@ -117,8 +132,16 @@ public class MainActivity extends AppCompatActivity {
 
             while (cursor.moveToNext()) {
                 Task task = new Task(cursor.getString(cursor.getColumnIndex(SQLiteDBHelper.COLUMN_TASK)));
+                task.setPriority(Task.Priority.valueOf(cursor.getString(cursor.getColumnIndex(SQLiteDBHelper.COLUMN_PRIORITY))));
+
+                final String dateStr = cursor.getString(cursor.getColumnIndex(SQLiteDBHelper.COLUMN_DUE));
+                DateFormat formatter = new SimpleDateFormat("MM/dd/yy");
+                final Date dueDate = (Date)formatter.parse(dateStr);
+                task.setDue(dueDate);
                 items.add(task);
             }
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
     }
 
