@@ -21,7 +21,7 @@ The following **optional** features are implemented:
 * [x] Add support for completion due dates for todo items (and display within listview item)
 * [x] Use a [DialogFragment](http://guides.codepath.com/android/Using-DialogFragment) instead of new Activity for editing items
 * [x] Add support for selecting the priority of each todo item (and display in listview item)
-* [] Tweak the style improving the UI / UX, play with colors, images or backgrounds
+* [x] Tweak the style improving the UI / UX, play with colors, images or backgrounds
 
 The following **additional** features are implemented:
 
@@ -31,7 +31,7 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://i.imgur.com/vlREFZM.gifv' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+![video walkthrough](http://i.imgur.com/99ZD8AS.gif "Video walkthrough")
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 

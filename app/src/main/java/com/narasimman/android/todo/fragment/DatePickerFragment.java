@@ -1,4 +1,4 @@
-package com.narasimman.android.todo;
+package com.narasimman.android.todo.fragment;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.narasimman.android.todo.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

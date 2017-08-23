@@ -1,4 +1,4 @@
-package com.narasimman.android.todo;
+package com.narasimman.android.todo.model;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -13,7 +13,7 @@ public class Task implements Serializable{
     private Priority priority;
     private Date due;
 
-    enum Priority {
+    public enum Priority {
         HIGH,
         MEDIUM,
         LOW

@@ -1,4 +1,4 @@
-package com.narasimman.android.todo;
+package com.narasimman.android.todo.db;
 
 import android.content.ContentValues;
 import android.content.Context;

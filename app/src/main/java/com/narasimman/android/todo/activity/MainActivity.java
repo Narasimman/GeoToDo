@@ -1,4 +1,4 @@
-package com.narasimman.android.todo;
+package com.narasimman.android.todo.activity;
 
 import android.content.ContentValues;
 import android.content.Intent;
@@ -12,6 +12,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.narasimman.android.todo.R;
+import com.narasimman.android.todo.db.SQLiteDBHelper;
+import com.narasimman.android.todo.adapter.TasksAdapter;
+import com.narasimman.android.todo.model.Task;
 
 import java.text.DateFormat;
 import java.text.ParseException;

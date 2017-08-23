@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.narasimman.android.todo.MainActivity">
+    tools:context="com.narasimman.android.todo.activity.MainActivity">
 
     <Button
         android:id="@+id/btnAddItem"
@@ -47,6 +47,8 @@
         android:layout_marginRight="15dp"
         android:layout_marginStart="15dp"
         android:layout_marginTop="8dp"
+        android:divider="#f00"
+        android:dividerHeight="1dp"
         app:layout_constraintBottom_toTopOf="@+id/etNewItem"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
